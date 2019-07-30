@@ -49,109 +49,37 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
-	volScalarField viscOld = fluid.nu();
-	volScalarField viscNew = fluid.nu();
+
+//inicio da edição
 	double max=1;
 	int i;
+//final da edição
 
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        #include "CourantNo.H"	
+        #include "CourantNo.H"
+	
 //inicio da edição
 		i=0;
 		max=1;
 		while(max>tol.value() && i<iMax.value())
 		{
-			max=0;
-			viscOld = fluid.nu();
-
-        	fluid.correct();
-
-			viscNew = fluid.nu();
-			forAll(mesh.cells(),celli)
-			{
-				if(max<=(mag(viscNew[celli]-viscOld[celli])))
-				{
-					max = mag(viscNew[celli]-viscOld[celli]);
-				}
-				//necessário para o primeiro passo de tempo
-				if(max==0)
-					max=1;		
-			}
+			#include "visc.H"
 			Info<<"Variacao maxima da viscosidade = "<<max<<endl;
-
 //final da edição
 
-        	// Momentum predictor
-
-        	fvVectorMatrix UEqn
-        	(
-            	fvm::ddt(U)
-          	  + fvm::div(phi, U)
-          	  - fvm::laplacian(fluid.nu(), U)
-          	  - (fvc::grad(U) & fvc::grad(fluid.nu()))
-        	);
-
-        	if (piso.momentumPredictor())
-        	{
-            	solve(UEqn == -fvc::grad(p));
-        	}
-
+        	#include "UEqn.H"
 
         	// --- PISO loop
         	while (piso.correct())
         	{
-            	volScalarField rAU(1.0/UEqn.A());
-            	volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
-            	surfaceScalarField phiHbyA
-            	(
-                	"phiHbyA",
-                	fvc::flux(HbyA)
-              	  + fvc::interpolate(rAU)*fvc::ddtCorr(U, phi)
-            	);
-
-            	adjustPhi(phiHbyA, U, p);
-
-            	// Update the pressure BCs to ensure flux consistency
-            	constrainPressure(p, U, phiHbyA, rAU);
-
-            	// Non-orthogonal pressure corrector loop
-            	while (piso.correctNonOrthogonal())
-            	{
-                	// Pressure corrector
-
-                	fvScalarMatrix pEqn
-                	(
-                    	fvm::laplacian(rAU, p) == fvc::div(phiHbyA)
-                	);
-
-                	pEqn.setReference(pRefCell, pRefValue);
-
-                	pEqn.solve(mesh.solver(p.select(piso.finalInnerIter())));
-
-                	if (piso.finalNonOrthogonalIter())
-                	{
-                    	phi = phiHbyA - pEqn.flux();
-                	}
-            	}
-
-            	#include "continuityErrs.H"
-
-            	U = HbyA - rAU*fvc::grad(p);
-            	U.correctBoundaryConditions();	
+            	#include "pEqn.H"	
         	}
 
 //inicio da edição
-			fvScalarMatrix TEqn
-			(
-				fvm::ddt(T)
-			   +fvm::div(phi,T)
-			   -fvm::laplacian(DT,T)
-			);
-
-			TEqn.solve();
+			#include "TEqn.H"
 			i++;
 		}
 		Info<<"numero de iteracoes por causa da viscosidade = "<<i<<endl;
