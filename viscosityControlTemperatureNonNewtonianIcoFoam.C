@@ -51,11 +51,8 @@ int main(int argc, char *argv[])
     Info<< "\nStarting time loop\n" << endl;
 	volScalarField viscOld = fluid.nu();
 	volScalarField viscNew = fluid.nu();
-	double max=1, tol;
-	int i,iMax;
-
-	tol=1e-5;
-	iMax=100;
+	double max=1;
+	int i;
 
     while (runTime.loop())
     {
@@ -65,7 +62,7 @@ int main(int argc, char *argv[])
 //inicio da edição
 		i=0;
 		max=1;
-		while(max>tol && i<iMax)
+		while(max>tol.value() && i<iMax.value())
 		{
 			max=0;
 			viscOld = fluid.nu();
@@ -157,7 +154,7 @@ int main(int argc, char *argv[])
 			TEqn.solve();
 			i++;
 		}
-		Info<<"numero de iteracoes por causa da viscosidade"<<i<<endl;
+		Info<<"numero de iteracoes por causa da viscosidade = "<<i<<endl;
 //final da edição	
 
         runTime.write();

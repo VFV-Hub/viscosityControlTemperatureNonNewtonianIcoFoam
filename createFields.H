@@ -1,5 +1,5 @@
 //começo da edição
-Info<< "Reading DT in transportProperties\n" << endl;
+
 
 IOdictionary transportProperties
 (
@@ -13,11 +13,31 @@ IOdictionary transportProperties
     )
 );
 
+Info<< "Reading DT in transportProperties\n" << endl;
+
 dimensionedScalar DT
 (
     "DT",
     dimViscosity,
     transportProperties.lookup("DT")
+);
+
+Info<< "Reading iMax in transportProperties\n" << endl;
+
+dimensionedScalar iMax
+(
+    "iMax", 
+	dimensionSet(0,0,0,0,0,0,0), 
+	transportProperties.lookup("iMax")
+);
+
+Info<< "Reading tol in transportProperties\n" << endl;
+
+dimensionedScalar tol
+(
+    "tol",
+	dimensionSet(0,0,0,0,0,0,0),
+    transportProperties.lookup("tol")
 );
 
 //final da edição
