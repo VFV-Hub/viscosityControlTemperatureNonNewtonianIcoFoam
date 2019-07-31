@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     Info<< "\nStarting time loop\n" << endl;
 
 //inicio da edição
-	double max=1;
+	double major=1;
 	int i;
 //final da edição
 
@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         #include "CourantNo.H"
+
+		fluid.correct();
 	
 //inicio da edição
 		i=0;
-		max=1;
-		while(max>tol.value() && i<iMax.value())
+		major=1;
+		while(major>tol.value() && i<iMax.value())
 		{
-			#include "visc.H"
-			Info<<"Variacao maxima da viscosidade = "<<max<<endl;
 //final da edição
 
         	#include "UEqn.H"
@@ -80,6 +80,10 @@ int main(int argc, char *argv[])
 
 //inicio da edição
 			#include "TEqn.H"
+
+			#include "visc.H"
+			Info<<"Variacao relativa maxima da viscosidade = "<< major <<endl;
+
 			i++;
 		}
 		Info<<"numero de iteracoes por causa da viscosidade = "<<i<<endl;

@@ -1,7 +1,7 @@
 volScalarField viscOld = fluid.nu();
 volScalarField viscNew = fluid.nu();
 
-max=0;
+major=0;
 viscOld = fluid.nu();
 
 fluid.correct();
@@ -9,11 +9,8 @@ fluid.correct();
 viscNew = fluid.nu();
 forAll(mesh.cells(),celli)
 {
-	if(max<=(mag(viscNew[celli]-viscOld[celli])))
+	if(major<=(mag(viscNew[celli]/max(viscOld[celli],VSMALL)-1.)))
 	{
-		max = mag(viscNew[celli]-viscOld[celli]);
-	}
-	//necessário para o primeiro passo de tempo
-	if(max==0)
-		max=1;		
+		major = mag(viscNew[celli]/max(viscOld[celli],VSMALL)-1.);
+	}	
 }
